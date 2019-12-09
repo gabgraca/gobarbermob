@@ -1,6 +1,9 @@
+/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import { withNavigationFocus } from 'react-navigation';
 
 import api from '~/services/api';
 
@@ -9,20 +12,19 @@ import { Container, Title, List } from './styles';
 import Background from '~/components/Background';
 import Appointment from '~/components/Appointment';
 
-const data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-export default function Dashboard() {
+function Dashboard({ isFocused }) {
   const [appointments, setAppointments] = useState([]);
+  async function loadAppointments() {
+    const response = await api.get('appointments');
+
+    setAppointments(response.data);
+  }
 
   useEffect(() => {
-    async function loadAppointments() {
-      const response = await api.get('appointments');
-
-      setAppointments(response.data);
+    if (isFocused) {
+      loadAppointments();
     }
-
-    loadAppointments();
-  }, []);
+  }, [isFocused]);
 
   async function handleCancel(id) {
     const response = await api.delete(`appointments/${id}`);
@@ -60,3 +62,5 @@ Dashboard.navigationOptions = {
     <Icon name="event" size={20} color={tintColor} />
   ),
 };
+
+export default withNavigationFocus(Dashboard);
